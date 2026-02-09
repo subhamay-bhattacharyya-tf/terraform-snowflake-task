@@ -1,101 +1,113 @@
-# Terraform Snowflake Module - Warehouse
+# Terraform Snowflake Module - Task
 
-![Release](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse/actions/workflows/ci.yaml/badge.svg)&nbsp;![Snowflake](https://img.shields.io/badge/Snowflake-29B5E8?logo=snowflake&logoColor=white)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-tf/terraform-snowflake-warehouse)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/73bb06aedb3721ff9a98cfe96f71647a/raw/terraform-snowflake-warehouse.json?)
+![Release](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task/actions/workflows/ci.yaml/badge.svg)&nbsp;![Snowflake](https://img.shields.io/badge/Snowflake-29B5E8?logo=snowflake&logoColor=white)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-tf/terraform-snowflake-task)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/3250f218c58c0b8262fbeff9dea5f412/raw/terraform-snowflake-task.json?)
 
-A Terraform module for creating and managing Snowflake warehouses using a map of configuration objects. Supports creating single or multiple warehouses with a single module call.
+A Terraform module for creating and managing Snowflake tasks using a map of configuration objects. Supports creating single tasks or task DAGs (Directed Acyclic Graphs) with a single module call.
 
 ## Features
 
-- Map-based configuration for creating single or multiple warehouses
+- Map-based configuration for creating single or multiple tasks
+- Support for task DAGs with `after` dependencies
 - Built-in input validation with descriptive error messages
 - Sensible defaults for optional properties
-- Outputs keyed by warehouse identifier for easy reference
-- Support for all Snowflake warehouse sizes and configurations
+- Outputs keyed by task identifier for easy reference
+- Support for scheduled tasks (cron or interval-based)
+- Support for serverless tasks (user-managed warehouse size)
+- Conditional task execution with `when` clause
 
 ## Usage
 
-### Single Warehouse
+### Single Task
 
 ```hcl
-module "warehouse" {
-  source = "path/to/modules/snowflake-warehouse"
+module "task" {
+  source = "path/to/modules/snowflake-task"
 
-  warehouse_configs = {
-    "my_warehouse" = {
-      name                      = "MY_WAREHOUSE"
-      warehouse_size            = "X-SMALL"
-      warehouse_type            = "STANDARD"
-      auto_resume               = true
-      auto_suspend              = 60
-      initially_suspended       = true
-      min_cluster_count         = 1
-      max_cluster_count         = 1
-      scaling_policy            = "STANDARD"
-      enable_query_acceleration = false
-      comment                   = "My test warehouse"
+  task_configs = {
+    "my_task" = {
+      database         = "MY_DATABASE"
+      schema           = "MY_SCHEMA"
+      name             = "MY_TASK"
+      warehouse        = "MY_WAREHOUSE"
+      sql_statement    = "CALL my_procedure()"
+      schedule_minutes = 60
+      started          = false
+      comment          = "My scheduled task"
     }
   }
 }
 ```
 
-### Multiple Warehouses
+### Task DAG (Multiple Tasks)
 
 ```hcl
 locals {
-  warehouses = {
-    "adhoc_wh" = {
-      name                      = "SN_TEST_ADHOC_WH"
-      warehouse_size            = "X-SMALL"
-      warehouse_type            = "STANDARD"
-      auto_resume               = true
-      auto_suspend              = 60
-      initially_suspended       = true
-      min_cluster_count         = 1
-      max_cluster_count         = 1
-      scaling_policy            = "STANDARD"
-      enable_query_acceleration = false
-      comment                   = "Development and sandbox warehouse for ad-hoc queries"
+  tasks = {
+    "root_task" = {
+      database         = "MY_DATABASE"
+      schema           = "MY_SCHEMA"
+      name             = "ROOT_TASK"
+      warehouse        = "MY_WAREHOUSE"
+      sql_statement    = "CALL stage_data()"
+      schedule_minutes = 60
+      started          = false
+      comment          = "Root task - runs every hour"
     }
-    "load_wh" = {
-      name                      = "SN_TEST_LOAD_WH"
-      warehouse_size            = "X-SMALL"
-      warehouse_type            = "STANDARD"
-      auto_resume               = true
-      auto_suspend              = 60
-      initially_suspended       = true
-      min_cluster_count         = 1
-      max_cluster_count         = 1
-      scaling_policy            = "STANDARD"
-      enable_query_acceleration = false
-      comment                   = "Dedicated ingestion warehouse for loading files"
+    "transform_task" = {
+      database      = "MY_DATABASE"
+      schema        = "MY_SCHEMA"
+      name          = "TRANSFORM_TASK"
+      warehouse     = "MY_WAREHOUSE"
+      sql_statement = "CALL transform_data()"
+      afters        = ["ROOT_TASK"]
+      started       = false
+      comment       = "Transform task - runs after root"
     }
-    "transform_wh" = {
-      name                      = "SN_TEST_TRANSFORM_WH"
-      warehouse_size            = "MEDIUM"
-      warehouse_type            = "STANDARD"
-      auto_resume               = true
-      auto_suspend              = 300
-      initially_suspended       = true
-      min_cluster_count         = 1
-      max_cluster_count         = 3
-      scaling_policy            = "STANDARD"
-      enable_query_acceleration = true
-      comment                   = "ETL/ELT warehouse for transformations"
+    "load_task" = {
+      database      = "MY_DATABASE"
+      schema        = "MY_SCHEMA"
+      name          = "LOAD_TASK"
+      warehouse     = "MY_WAREHOUSE"
+      sql_statement = "CALL load_to_final()"
+      afters        = ["TRANSFORM_TASK"]
+      started       = false
+      comment       = "Load task - runs after transform"
     }
   }
 }
 
-module "warehouses" {
-  source = "path/to/modules/snowflake-warehouse"
+module "tasks" {
+  source = "path/to/modules/snowflake-task"
 
-  warehouse_configs = local.warehouses
+  task_configs = local.tasks
+}
+```
+
+### Serverless Task
+
+```hcl
+module "serverless_task" {
+  source = "path/to/modules/snowflake-task"
+
+  task_configs = {
+    "serverless_task" = {
+      database         = "MY_DATABASE"
+      schema           = "MY_SCHEMA"
+      name             = "SERVERLESS_TASK"
+      sql_statement    = "SELECT 1"
+      schedule_minutes = 5
+      user_task_managed_initial_warehouse_size = "XSMALL"
+      started          = false
+      comment          = "Serverless task using managed compute"
+    }
+  }
 }
 ```
 
 ## Examples
 
-- [Basic (Single Warehouse)](examples/basic) - Create a single warehouse
-- [Multiple Warehouses](examples/multiple-warehouses) - Create multiple warehouses
+- [Single Task](examples/single-task) - Create a single scheduled task
+- [Multiple Tasks (DAG)](examples/multiple-tasks) - Create a task DAG with dependencies
 
 ## Requirements
 
@@ -114,67 +126,63 @@ module "warehouses" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| warehouse_configs | Map of configuration objects for Snowflake warehouses | `map(object)` | `{}` | no |
+| task_configs | Map of configuration objects for Snowflake tasks | `map(object)` | `{}` | no |
 
-### warehouse_configs Object Properties
+### task_configs Object Properties
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| name | string | - | Warehouse identifier (required) |
-| warehouse_size | string | "X-SMALL" | Size of the warehouse |
-| warehouse_type | string | "STANDARD" | Type of warehouse (STANDARD, SNOWPARK-OPTIMIZED) |
-| auto_resume | bool | true | Auto-resume when queries are submitted |
-| auto_suspend | number | 60 | Seconds of inactivity before auto-suspend |
-| initially_suspended | bool | true | Start in suspended state |
-| min_cluster_count | number | 1 | Minimum number of clusters |
-| max_cluster_count | number | 1 | Maximum number of clusters |
-| scaling_policy | string | "STANDARD" | Scaling policy (STANDARD, ECONOMY) |
-| enable_query_acceleration | bool | false | Enable query acceleration |
-| comment | string | null | Description of the warehouse |
+| database | string | - | Database where the task resides (required) |
+| schema | string | - | Schema where the task resides (required) |
+| name | string | - | Task identifier (required) |
+| warehouse | string | null | Warehouse to use for task execution |
+| sql_statement | string | - | SQL statement to execute (required) |
+| schedule_minutes | number | null | Schedule interval in minutes (for root tasks) |
+| schedule_cron | string | null | Cron expression for scheduling (for root tasks) |
+| comment | string | null | Description of the task |
+| started | bool | false | Whether the task is started |
+| allow_overlapping_execution | string | null | Allow concurrent task runs ("true"/"false") |
+| error_integration | string | null | Error notification integration name |
+| suspend_task_after_num_failures | number | null | Suspend after N consecutive failures |
+| user_task_timeout_ms | number | null | Task timeout in milliseconds |
+| user_task_managed_initial_warehouse_size | string | null | Warehouse size for serverless tasks |
+| afters | list(string) | [] | List of predecessor task names (for DAG tasks) |
+| when | string | null | Conditional execution expression |
 
-### Valid Warehouse Sizes
+### Valid Warehouse Sizes (for serverless tasks)
 
-- X-SMALL (XSMALL)
+- XSMALL (X-SMALL)
 - SMALL
 - MEDIUM
 - LARGE
-- X-LARGE (XLARGE)
-- 2X-LARGE (XXLARGE, X2LARGE)
-- 3X-LARGE (XXXLARGE, X3LARGE)
-- 4X-LARGE (X4LARGE)
-- 5X-LARGE (X5LARGE)
-- 6X-LARGE (X6LARGE)
-
-### Valid Warehouse Types
-
-- STANDARD
-- SNOWPARK-OPTIMIZED
-
-### Valid Scaling Policies
-
-- STANDARD
-- ECONOMY
+- XLARGE (X-LARGE)
+- XXLARGE (2X-LARGE)
+- XXXLARGE (3X-LARGE)
+- X4LARGE (4X-LARGE)
+- X5LARGE (5X-LARGE)
+- X6LARGE (6X-LARGE)
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| warehouse_names | Map of warehouse names keyed by identifier |
-| warehouse_fully_qualified_names | Map of fully qualified warehouse names |
-| warehouse_sizes | Map of warehouse sizes |
-| warehouse_states | Map of warehouse states (STARTED or SUSPENDED) |
-| warehouses | All warehouse resources |
+| task_names | Map of task names keyed by identifier |
+| task_fully_qualified_names | Map of fully qualified task names |
+| task_databases | Map of task databases |
+| task_schemas | Map of task schemas |
+| task_states | Map of task states (started or suspended) |
+| tasks | All task resources |
 
 ## Validation
 
 The module validates inputs and provides descriptive error messages for:
 
-- Empty warehouse name
-- Invalid warehouse size
-- Invalid warehouse type
-- Invalid scaling policy
-- Negative auto_suspend value
-- min_cluster_count exceeding max_cluster_count
+- Empty task name
+- Empty database name
+- Empty schema name
+- Empty SQL statement
+- Invalid warehouse size for serverless tasks
+- Negative suspend_task_after_num_failures value
 
 ## Testing
 
