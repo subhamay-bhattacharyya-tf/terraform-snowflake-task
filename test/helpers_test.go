@@ -15,10 +15,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type WarehouseProps struct {
-	Name    string
-	Size    string
-	Comment string
+type TaskProps struct {
+	Name      string
+	Database  string
+	Schema    string
+	State     string
+	Schedule  string
+	Comment   string
 }
 
 func openSnowflake(t *testing.T) *sql.DB {
@@ -71,10 +74,10 @@ func openSnowflake(t *testing.T) *sql.DB {
 	return db
 }
 
-func warehouseExists(t *testing.T, db *sql.DB, warehouseName string) bool {
+func taskExists(t *testing.T, db *sql.DB, database, schema, taskName string) bool {
 	t.Helper()
 
-	q := fmt.Sprintf("SHOW WAREHOUSES LIKE '%s';", escapeLike(warehouseName))
+	q := fmt.Sprintf("SHOW TASKS LIKE '%s' IN SCHEMA %s.%s;", escapeLike(taskName), database, schema)
 	rows, err := db.Query(q)
 	require.NoError(t, err)
 	defer func() { _ = rows.Close() }()
@@ -82,13 +85,10 @@ func warehouseExists(t *testing.T, db *sql.DB, warehouseName string) bool {
 	return rows.Next()
 }
 
-func fetchWarehouseProps(t *testing.T, db *sql.DB, warehouseName string) WarehouseProps {
+func fetchTaskProps(t *testing.T, db *sql.DB, database, schema, taskName string) TaskProps {
 	t.Helper()
 
-	// SHOW WAREHOUSES returns columns in a specific order. We need to scan all columns
-	// to get name (col 0), size (col 3), and comment (col 10 in newer versions).
-	// Using a simpler approach: query rows and scan by column name using rows.Columns()
-	q := fmt.Sprintf("SHOW WAREHOUSES LIKE '%s';", escapeLike(warehouseName))
+	q := fmt.Sprintf("SHOW TASKS LIKE '%s' IN SCHEMA %s.%s;", escapeLike(taskName), database, schema)
 	rows, err := db.Query(q)
 	require.NoError(t, err)
 	defer func() { _ = rows.Close() }()
@@ -96,23 +96,27 @@ func fetchWarehouseProps(t *testing.T, db *sql.DB, warehouseName string) Warehou
 	cols, err := rows.Columns()
 	require.NoError(t, err)
 
-	// Find column indices for name, size, comment
-	nameIdx, sizeIdx, commentIdx := -1, -1, -1
+	// Find column indices
+	nameIdx, dbIdx, schemaIdx, stateIdx, scheduleIdx, commentIdx := -1, -1, -1, -1, -1, -1
 	for i, col := range cols {
 		switch col {
 		case "name":
 			nameIdx = i
-		case "size":
-			sizeIdx = i
+		case "database_name":
+			dbIdx = i
+		case "schema_name":
+			schemaIdx = i
+		case "state":
+			stateIdx = i
+		case "schedule":
+			scheduleIdx = i
 		case "comment":
 			commentIdx = i
 		}
 	}
-	require.NotEqual(t, -1, nameIdx, "name column not found in SHOW WAREHOUSES output")
-	require.NotEqual(t, -1, sizeIdx, "size column not found in SHOW WAREHOUSES output")
-	require.NotEqual(t, -1, commentIdx, "comment column not found in SHOW WAREHOUSES output")
+	require.NotEqual(t, -1, nameIdx, "name column not found in SHOW TASKS output")
 
-	require.True(t, rows.Next(), "No warehouse found matching %s", warehouseName)
+	require.True(t, rows.Next(), "No task found matching %s", taskName)
 
 	// Create slice to hold all column values
 	values := make([]interface{}, len(cols))
@@ -125,7 +129,11 @@ func fetchWarehouseProps(t *testing.T, db *sql.DB, warehouseName string) Warehou
 	require.NoError(t, err)
 
 	// Extract the values we need
-	getName := func(v interface{}) string {
+	getValue := func(idx int) string {
+		if idx == -1 {
+			return ""
+		}
+		v := values[idx]
 		if v == nil {
 			return ""
 		}
@@ -138,11 +146,44 @@ func fetchWarehouseProps(t *testing.T, db *sql.DB, warehouseName string) Warehou
 		return fmt.Sprintf("%v", v)
 	}
 
-	return WarehouseProps{
-		Name:    getName(values[nameIdx]),
-		Size:    getName(values[sizeIdx]),
-		Comment: getName(values[commentIdx]),
+	return TaskProps{
+		Name:     getValue(nameIdx),
+		Database: getValue(dbIdx),
+		Schema:   getValue(schemaIdx),
+		State:    getValue(stateIdx),
+		Schedule: getValue(scheduleIdx),
+		Comment:  getValue(commentIdx),
 	}
+}
+
+func createTestDatabase(t *testing.T, db *sql.DB, dbName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", dbName))
+	require.NoError(t, err)
+}
+
+func createTestSchema(t *testing.T, db *sql.DB, dbName, schemaName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s.%s", dbName, schemaName))
+	require.NoError(t, err)
+}
+
+func createTestWarehouse(t *testing.T, db *sql.DB, whName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("CREATE WAREHOUSE IF NOT EXISTS %s WAREHOUSE_SIZE = 'X-SMALL' AUTO_SUSPEND = 60 AUTO_RESUME = TRUE INITIALLY_SUSPENDED = TRUE", whName))
+	require.NoError(t, err)
+}
+
+func dropTestDatabase(t *testing.T, db *sql.DB, dbName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", dbName))
+	require.NoError(t, err)
+}
+
+func dropTestWarehouse(t *testing.T, db *sql.DB, whName string) {
+	t.Helper()
+	_, err := db.Exec(fmt.Sprintf("DROP WAREHOUSE IF EXISTS %s", whName))
+	require.NoError(t, err)
 }
 
 func mustEnv(t *testing.T, key string) string {
