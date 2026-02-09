@@ -51,7 +51,7 @@ variable "task_configs" {
   validation {
     condition = alltrue([
       for k, task in var.task_configs :
-      task.user_task_managed_initial_warehouse_size == null ||
+      task.user_task_managed_initial_warehouse_size == null ? true :
       contains(["XSMALL", "X-SMALL", "SMALL", "MEDIUM", "LARGE", "XLARGE", "X-LARGE", "XXLARGE", "X2LARGE", "2X-LARGE", "XXXLARGE", "X3LARGE", "3X-LARGE", "X4LARGE", "4X-LARGE", "X5LARGE", "5X-LARGE", "X6LARGE", "6X-LARGE"], upper(task.user_task_managed_initial_warehouse_size))
     ])
     error_message = "Invalid user_task_managed_initial_warehouse_size. Valid values: XSMALL, SMALL, MEDIUM, LARGE, XLARGE, XXLARGE, XXXLARGE, X4LARGE, X5LARGE, X6LARGE."
