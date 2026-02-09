@@ -1,4 +1,5 @@
-# Changelog
+## [unreleased]
 
-All notable changes to this project will be documented in this file.
+### 🚀 Features
 
+- Implement Snowflake task module
