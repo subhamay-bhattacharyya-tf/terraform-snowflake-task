@@ -28,8 +28,8 @@ resource "snowflake_task" "this" {
   user_task_timeout_ms                     = each.value.user_task_timeout_ms
   user_task_managed_initial_warehouse_size = each.value.user_task_managed_initial_warehouse_size
 
-  # Task dependency (for DAG tasks)
-  after = each.value.afters
+  # Task dependency (for DAG tasks) - conflicts with schedule
+  after = length(each.value.afters) > 0 ? each.value.afters : null
 
   # Conditional execution
   when = each.value.when
