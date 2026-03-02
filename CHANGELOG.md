@@ -19,6 +19,8 @@
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update task dependency references to use fully qualified names
 
 ### 🧪 Testing
 
