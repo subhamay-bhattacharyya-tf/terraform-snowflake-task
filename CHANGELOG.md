@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task/compare/v1.0.0...v2.0.0) (2026-03-02)
+
+### ⚠ BREAKING CHANGES
+
+* Remove modules/ directory structure
+
+- Move module files to repository root
+- Update examples to reference root module
+- Update CI workflow paths
+- Align with one-module-per-repo best practice
+
+### Features
+
+* convert to single-module repository layout ([dc33b84](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task/commit/dc33b847723773f97561aa625f3e6fd2475b28c2))
+
+### Bug Fixes
+
+* **snowflake-task:** refine schedule block conditional logic ([9f7393c](https://github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task/commit/9f7393c81da913012cfe29c7d23571e4c2995122))
+
 ## 1.0.0 (2026-02-09)
 
 ### Features
