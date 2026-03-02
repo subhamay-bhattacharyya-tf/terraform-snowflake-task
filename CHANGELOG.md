@@ -9,9 +9,11 @@
 
 - *(snowflake-task)* Correct warehouse size validation logic
 - *(snowflake-task)* Handle empty task dependencies gracefully
+- *(snowflake-task)* Refine schedule block conditional logic
 
 ### 📚 Documentation
 
+- Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
