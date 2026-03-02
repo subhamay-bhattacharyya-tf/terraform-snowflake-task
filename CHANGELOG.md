@@ -23,6 +23,8 @@
 - Update task dependency references to use fully qualified names
 - Update CHANGELOG.md [skip ci]
 - *(examples)* Update task dependency references with quoted identifiers
+- Update CHANGELOG.md [skip ci]
+- *(examples)* Remove quoted identifiers from task dependency references
 
 ### 🧪 Testing
 
