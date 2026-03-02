@@ -1,3 +1,10 @@
+# -- examples/single-task/outputs.tf
+# ============================================================================
+# Output Values
+# ============================================================================
+# Outputs for the single task example
+# ============================================================================
+
 output "task_names" {
   description = "The names of the created tasks"
   value       = module.task.task_names

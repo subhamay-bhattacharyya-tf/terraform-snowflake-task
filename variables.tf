@@ -1,3 +1,10 @@
+# -- variables.tf
+# ============================================================================
+# Input Variables
+# ============================================================================
+# Configuration variables for Snowflake tasks
+# ============================================================================
+
 variable "task_configs" {
   description = "Map of configuration objects for Snowflake tasks"
   type = map(object({

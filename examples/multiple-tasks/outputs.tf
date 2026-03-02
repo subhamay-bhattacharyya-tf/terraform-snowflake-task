@@ -1,3 +1,10 @@
+# -- examples/multiple-tasks/outputs.tf
+# ============================================================================
+# Output Values
+# ============================================================================
+# Outputs for the multiple tasks example
+# ============================================================================
+
 output "task_names" {
   description = "The names of the created tasks"
   value       = module.tasks.task_names

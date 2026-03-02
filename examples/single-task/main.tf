@@ -1,7 +1,10 @@
-# Example: Single Snowflake Task
-#
+# -- examples/single-task/main.tf
+# ============================================================================
+# Single Snowflake Task Example
+# ============================================================================
 # This example demonstrates how to use the snowflake-task module
 # to create a single Snowflake task.
+# ============================================================================
 
 module "task" {
   source = "../.."

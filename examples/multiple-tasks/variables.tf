@@ -1,3 +1,10 @@
+# -- examples/multiple-tasks/variables.tf
+# ============================================================================
+# Input Variables
+# ============================================================================
+# Configuration variables for the multiple tasks example
+# ============================================================================
+
 variable "task_configs" {
   description = "Map of configuration objects for Snowflake tasks"
   type = map(object({
@@ -20,39 +27,13 @@ variable "task_configs" {
 
     afters = optional(list(string), [])
     when   = optional(string, null)
+
+    grants = optional(list(object({
+      role_name  = string
+      privileges = list(string)
+    })), [])
   }))
-  default = {
-    "root_task" = {
-      database         = "TEST_DB"
-      schema           = "TEST_SCHEMA"
-      name             = "ROOT_TASK"
-      warehouse        = "TEST_WH"
-      sql_statement    = "CALL process_stage_data()"
-      schedule_minutes = 60
-      started          = false
-      comment          = "Root task - runs every hour"
-    }
-    "transform_task" = {
-      database      = "TEST_DB"
-      schema        = "TEST_SCHEMA"
-      name          = "TRANSFORM_TASK"
-      warehouse     = "TEST_WH"
-      sql_statement = "CALL transform_data()"
-      afters        = ["ROOT_TASK"]
-      started       = false
-      comment       = "Transform task - runs after root task"
-    }
-    "load_task" = {
-      database      = "TEST_DB"
-      schema        = "TEST_SCHEMA"
-      name          = "LOAD_TASK"
-      warehouse     = "TEST_WH"
-      sql_statement = "CALL load_to_final()"
-      afters        = ["TRANSFORM_TASK"]
-      started       = false
-      comment       = "Load task - runs after transform task"
-    }
-  }
+  default = {}
 }
 
 # Snowflake authentication variables

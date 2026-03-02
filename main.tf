@@ -1,5 +1,9 @@
+# -- main.tf
+# ============================================================================
 # Snowflake Task Resource
+# ============================================================================
 # Creates and manages one or more Snowflake tasks based on the task_configs map
+# ============================================================================
 
 resource "snowflake_task" "this" {
   for_each = var.task_configs

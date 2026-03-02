@@ -1,10 +1,17 @@
+# -- versions.tf
+# ============================================================================
+# Required Providers
+# ============================================================================
+# NOTE: This tells Terraform to use snowflakedb/snowflake, not hashicorp/snowflake
+# ============================================================================
+
 terraform {
   required_version = ">= 1.3.0"
 
   required_providers {
     snowflake = {
-      source  = "Snowflake-Labs/snowflake"
-      version = ">= 0.87.0"
+      source  = "snowflakedb/snowflake"
+      version = ">= 1.0.0"
     }
   }
 }
