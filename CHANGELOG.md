@@ -25,7 +25,9 @@
 - *(examples)* Update task dependency references with quoted identifiers
 - Update CHANGELOG.md [skip ci]
 - *(examples)* Remove quoted identifiers from task dependency references
+- Update CHANGELOG.md [skip ci]
 
 ### 🧪 Testing
 
 - *(snowflake-task)* Update test assertions for type consistency
+- *(multiple_tasks)* Remove transform and load task test cases
