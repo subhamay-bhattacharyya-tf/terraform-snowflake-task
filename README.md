@@ -7,7 +7,8 @@ A Terraform module for creating and managing Snowflake tasks using a map of conf
 ## Features
 
 - Map-based configuration for creating single or multiple tasks
-- Support for task DAGs with `after` dependencies
+- Support for task DAGs with `afters` dependencies
+- Role-based access control with `grants` configuration
 - Built-in input validation with descriptive error messages
 - Sensible defaults for optional properties
 - Outputs keyed by task identifier for easy reference
@@ -21,7 +22,7 @@ A Terraform module for creating and managing Snowflake tasks using a map of conf
 
 ```hcl
 module "task" {
-  source = "path/to/modules/snowflake-task"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task"
 
   task_configs = {
     "my_task" = {
@@ -33,6 +34,12 @@ module "task" {
       schedule_minutes = 60
       started          = false
       comment          = "My scheduled task"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
     }
   }
 }
@@ -52,6 +59,12 @@ locals {
       schedule_minutes = 60
       started          = false
       comment          = "Root task - runs every hour"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
     }
     "transform_task" = {
       database      = "MY_DATABASE"
@@ -59,9 +72,15 @@ locals {
       name          = "TRANSFORM_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL transform_data()"
-      afters        = ["ROOT_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.ROOT_TASK"]
       started       = false
       comment       = "Transform task - runs after root"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR"]
+        }
+      ]
     }
     "load_task" = {
       database      = "MY_DATABASE"
@@ -69,15 +88,21 @@ locals {
       name          = "LOAD_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL load_to_final()"
-      afters        = ["TRANSFORM_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.TRANSFORM_TASK"]
       started       = false
       comment       = "Load task - runs after transform"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR"]
+        }
+      ]
     }
   }
 }
 
 module "tasks" {
-  source = "path/to/modules/snowflake-task"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task"
 
   task_configs = local.tasks
 }
@@ -87,7 +112,7 @@ module "tasks" {
 
 ```hcl
 module "serverless_task" {
-  source = "path/to/modules/snowflake-task"
+  source = "github.com/subhamay-bhattacharyya-tf/terraform-snowflake-task"
 
   task_configs = {
     "serverless_task" = {
@@ -114,13 +139,13 @@ module "serverless_task" {
 | Name | Version |
 |------|---------|
 | terraform | >= 1.3.0 |
-| snowflake | >= 0.87.0 |
+| snowflake | >= 1.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| snowflake | >= 0.87.0 |
+| snowflake (snowflakedb/snowflake) | >= 1.0.0 |
 
 ## Inputs
 
@@ -146,8 +171,16 @@ module "serverless_task" {
 | suspend_task_after_num_failures | number | null | Suspend after N consecutive failures |
 | user_task_timeout_ms | number | null | Task timeout in milliseconds |
 | user_task_managed_initial_warehouse_size | string | null | Warehouse size for serverless tasks |
-| afters | list(string) | [] | List of predecessor task names (for DAG tasks) |
+| afters | list(string) | [] | List of predecessor task fully qualified names (database.schema.name) |
 | when | string | null | Conditional execution expression |
+| grants | list(object) | [] | List of role grants with privileges |
+
+### grants Object Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| role_name | string | Name of the role to grant privileges to |
+| privileges | list(string) | List of privileges to grant (e.g., MONITOR, OPERATE) |
 
 ### Valid Warehouse Sizes (for serverless tasks)
 
@@ -204,8 +237,8 @@ Required environment variables for testing:
 ## CI/CD Configuration
 
 The CI workflow runs on:
-- Push to `main`, `feature/**`, and `bug/**` branches (when `modules/**` changes)
-- Pull requests to `main` (when `modules/**` changes)
+- Push to `main`, `feature/**`, and `bug/**` branches (when `*.tf` or `examples/**` changes)
+- Pull requests to `main` (when `*.tf` or `examples/**` changes)
 - Manual workflow dispatch
 
 The workflow includes:

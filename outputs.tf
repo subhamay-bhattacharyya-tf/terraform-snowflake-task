@@ -1,3 +1,10 @@
+# -- outputs.tf
+# ============================================================================
+# Output Values
+# ============================================================================
+# Outputs for Snowflake tasks
+# ============================================================================
+
 output "task_names" {
   description = "The names of the created tasks."
   value       = { for k, v in snowflake_task.this : k => v.name }

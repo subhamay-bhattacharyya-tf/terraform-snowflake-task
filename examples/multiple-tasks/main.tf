@@ -1,10 +1,13 @@
-# Example: Multiple Snowflake Tasks (DAG)
-#
+# -- examples/multiple-tasks/main.tf
+# ============================================================================
+# Multiple Snowflake Tasks Example (DAG)
+# ============================================================================
 # This example demonstrates how to use the snowflake-task module
 # to create multiple Snowflake tasks forming a DAG (Directed Acyclic Graph).
+# ============================================================================
 
 module "tasks" {
-  source = "../../modules/snowflake-task"
+  source = "../.."
 
   task_configs = var.task_configs
 }

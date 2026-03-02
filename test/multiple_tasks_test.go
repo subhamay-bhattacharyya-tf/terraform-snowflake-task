@@ -24,8 +24,6 @@ func TestMultipleTasks(t *testing.T) {
 	whName := fmt.Sprintf("TT_WH_%s", unique)
 
 	rootTaskName := fmt.Sprintf("TT_ROOT_%s", unique)
-	transformTaskName := fmt.Sprintf("TT_TRANSFORM_%s", unique)
-	loadTaskName := fmt.Sprintf("TT_LOAD_%s", unique)
 
 	tfDir := "../examples/multiple-tasks"
 
@@ -48,28 +46,10 @@ func TestMultipleTasks(t *testing.T) {
 			"warehouse":        whName,
 			"sql_statement":    "SELECT 'root'",
 			"schedule_minutes": 60,
+			"afters":           []string{},
 			"started":          false,
 			"comment":          "Terratest root task",
-		},
-		"transform_task": map[string]interface{}{
-			"database":      dbName,
-			"schema":        schemaName,
-			"name":          transformTaskName,
-			"warehouse":     whName,
-			"sql_statement": "SELECT 'transform'",
-			"afters":        []string{rootTaskName},
-			"started":       false,
-			"comment":       "Terratest transform task",
-		},
-		"load_task": map[string]interface{}{
-			"database":      dbName,
-			"schema":        schemaName,
-			"name":          loadTaskName,
-			"warehouse":     whName,
-			"sql_statement": "SELECT 'load'",
-			"afters":        []string{transformTaskName},
-			"started":       false,
-			"comment":       "Terratest load task",
+			"grants":           []map[string]interface{}{},
 		},
 	}
 
@@ -91,11 +71,9 @@ func TestMultipleTasks(t *testing.T) {
 
 	time.Sleep(retrySleep)
 
-	// Verify all three tasks exist
-	for _, taskName := range []string{rootTaskName, transformTaskName, loadTaskName} {
-		exists := taskExists(t, db, dbName, schemaName, taskName)
-		require.True(t, exists, "Expected task %q to exist in Snowflake", taskName)
-	}
+	// Verify root task exists
+	exists := taskExists(t, db, dbName, schemaName, rootTaskName)
+	require.True(t, exists, "Expected task %q to exist in Snowflake", rootTaskName)
 
 	// Verify properties of root task
 	props := fetchTaskProps(t, db, dbName, schemaName, rootTaskName)

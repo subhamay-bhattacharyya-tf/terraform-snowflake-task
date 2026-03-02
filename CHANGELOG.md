@@ -18,11 +18,38 @@ All notable changes to this project will be documented in this file.
 ### 🚀 Features
 
 - Implement Snowflake task module
+- [**breaking**] Convert to single-module repository layout
 
 ### 🐛 Bug Fixes
 
 - *(snowflake-task)* Correct warehouse size validation logic
+- *(snowflake-task)* Handle empty task dependencies gracefully
+- *(snowflake-task)* Refine schedule block conditional logic
 
 ### 📚 Documentation
 
 - Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update task dependency references to use fully qualified names
+- Update CHANGELOG.md [skip ci]
+- *(examples)* Update task dependency references with quoted identifiers
+- Update CHANGELOG.md [skip ci]
+- *(examples)* Remove quoted identifiers from task dependency references
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
+
+### 🧪 Testing
+
+- *(snowflake-task)* Update test assertions for type consistency
+- *(multiple_tasks)* Remove transform and load task test cases
+- *(multiple_tasks)* Remove unused task name variables
+
+### ⚙️ Miscellaneous Tasks
+
+- Upgrade Snowflake provider to 1.0.0 and improve documentation

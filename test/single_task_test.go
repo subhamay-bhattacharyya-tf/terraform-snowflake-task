@@ -45,8 +45,10 @@ func TestSingleTask(t *testing.T) {
 			"warehouse":        whName,
 			"sql_statement":    "SELECT 1",
 			"schedule_minutes": 60,
+			"afters":           []string{},
 			"started":          false,
 			"comment":          "Terratest single task test",
+			"grants":           []map[string]interface{}{},
 		},
 	}
 

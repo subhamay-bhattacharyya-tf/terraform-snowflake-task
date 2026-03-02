@@ -1,3 +1,10 @@
+# -- variables.tf
+# ============================================================================
+# Input Variables
+# ============================================================================
+# Configuration variables for Snowflake tasks
+# ============================================================================
+
 variable "task_configs" {
   description = "Map of configuration objects for Snowflake tasks"
   type = map(object({
@@ -25,6 +32,12 @@ variable "task_configs" {
 
     # Conditional execution
     when = optional(string, null)
+
+    # Grants
+    grants = optional(list(object({
+      role_name  = string
+      privileges = list(string)
+    })), [])
   }))
   default = {}
 

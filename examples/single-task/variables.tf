@@ -1,3 +1,10 @@
+# -- examples/single-task/variables.tf
+# ============================================================================
+# Input Variables
+# ============================================================================
+# Configuration variables for the single task example
+# ============================================================================
+
 variable "task_configs" {
   description = "Map of configuration objects for Snowflake tasks"
   type = map(object({
@@ -20,6 +27,11 @@ variable "task_configs" {
 
     afters = optional(list(string), [])
     when   = optional(string, null)
+
+    grants = optional(list(object({
+      role_name  = string
+      privileges = list(string)
+    })), [])
   }))
   default = {}
 }
