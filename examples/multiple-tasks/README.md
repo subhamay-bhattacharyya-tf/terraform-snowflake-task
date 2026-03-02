@@ -31,7 +31,7 @@ module "tasks" {
       name          = "TRANSFORM_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL transform_data()"
-      afters        = ["ROOT_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.ROOT_TASK"]
       started       = false
       comment       = "Transform task - runs after root task"
       grants = [
@@ -47,7 +47,7 @@ module "tasks" {
       name          = "LOAD_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL load_to_final()"
-      afters        = ["TRANSFORM_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.TRANSFORM_TASK"]
       started       = false
       comment       = "Load task - runs after transform task"
       grants = [

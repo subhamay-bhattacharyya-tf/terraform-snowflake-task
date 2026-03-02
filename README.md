@@ -72,7 +72,7 @@ locals {
       name          = "TRANSFORM_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL transform_data()"
-      afters        = ["ROOT_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.ROOT_TASK"]
       started       = false
       comment       = "Transform task - runs after root"
       grants = [
@@ -88,7 +88,7 @@ locals {
       name          = "LOAD_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL load_to_final()"
-      afters        = ["TRANSFORM_TASK"]
+      afters        = ["MY_DATABASE.MY_SCHEMA.TRANSFORM_TASK"]
       started       = false
       comment       = "Load task - runs after transform"
       grants = [
@@ -171,7 +171,7 @@ module "serverless_task" {
 | suspend_task_after_num_failures | number | null | Suspend after N consecutive failures |
 | user_task_timeout_ms | number | null | Task timeout in milliseconds |
 | user_task_managed_initial_warehouse_size | string | null | Warehouse size for serverless tasks |
-| afters | list(string) | [] | List of predecessor task names (for DAG tasks) |
+| afters | list(string) | [] | List of predecessor task fully qualified names (database.schema.name) |
 | when | string | null | Conditional execution expression |
 | grants | list(object) | [] | List of role grants with privileges |
 
