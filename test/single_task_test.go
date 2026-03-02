@@ -48,7 +48,7 @@ func TestSingleTask(t *testing.T) {
 			"afters":           []string{},
 			"started":          false,
 			"comment":          "Terratest single task test",
-			"grants":           []interface{}{},
+			"grants":           []map[string]interface{}{},
 		},
 	}
 

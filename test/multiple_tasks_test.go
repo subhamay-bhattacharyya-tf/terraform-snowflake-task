@@ -51,7 +51,7 @@ func TestMultipleTasks(t *testing.T) {
 			"afters":           []string{},
 			"started":          false,
 			"comment":          "Terratest root task",
-			"grants":           []interface{}{},
+			"grants":           []map[string]interface{}{},
 		},
 		"transform_task": map[string]interface{}{
 			"database":         dbName,
@@ -59,11 +59,11 @@ func TestMultipleTasks(t *testing.T) {
 			"name":             transformTaskName,
 			"warehouse":        whName,
 			"sql_statement":    "SELECT 'transform'",
-			"schedule_minutes": nil,
+			"schedule_minutes": 0,
 			"afters":           []string{rootTaskName},
 			"started":          false,
 			"comment":          "Terratest transform task",
-			"grants":           []interface{}{},
+			"grants":           []map[string]interface{}{},
 		},
 		"load_task": map[string]interface{}{
 			"database":         dbName,
@@ -71,11 +71,11 @@ func TestMultipleTasks(t *testing.T) {
 			"name":             loadTaskName,
 			"warehouse":        whName,
 			"sql_statement":    "SELECT 'load'",
-			"schedule_minutes": nil,
+			"schedule_minutes": 0,
 			"afters":           []string{transformTaskName},
 			"started":          false,
 			"comment":          "Terratest load task",
-			"grants":           []interface{}{},
+			"grants":           []map[string]interface{}{},
 		},
 	}
 
