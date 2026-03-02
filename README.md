@@ -72,7 +72,7 @@ locals {
       name          = "TRANSFORM_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL transform_data()"
-      afters        = ["MY_DATABASE.MY_SCHEMA.ROOT_TASK"]
+      afters        = ["\"MY_DATABASE\".\"MY_SCHEMA\".\"ROOT_TASK\""]
       started       = false
       comment       = "Transform task - runs after root"
       grants = [
@@ -88,7 +88,7 @@ locals {
       name          = "LOAD_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL load_to_final()"
-      afters        = ["MY_DATABASE.MY_SCHEMA.TRANSFORM_TASK"]
+      afters        = ["\"MY_DATABASE\".\"MY_SCHEMA\".\"TRANSFORM_TASK\""]
       started       = false
       comment       = "Load task - runs after transform"
       grants = [
