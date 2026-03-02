@@ -24,8 +24,6 @@ func TestMultipleTasks(t *testing.T) {
 	whName := fmt.Sprintf("TT_WH_%s", unique)
 
 	rootTaskName := fmt.Sprintf("TT_ROOT_%s", unique)
-	transformTaskName := fmt.Sprintf("TT_TRANSFORM_%s", unique)
-	loadTaskName := fmt.Sprintf("TT_LOAD_%s", unique)
 
 	tfDir := "../examples/multiple-tasks"
 
