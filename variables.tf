@@ -25,6 +25,12 @@ variable "task_configs" {
 
     # Conditional execution
     when = optional(string, null)
+
+    # Grants
+    grants = optional(list(object({
+      role_name  = string
+      privileges = list(string)
+    })), [])
   }))
   default = {}
 

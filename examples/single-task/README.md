@@ -1,4 +1,4 @@
-# Basic Example - Single Task
+# Single Task Example
 
 This example demonstrates how to create a single Snowflake task using the module.
 
@@ -6,7 +6,7 @@ This example demonstrates how to create a single Snowflake task using the module
 
 ```hcl
 module "task" {
-  source = "../../modules/snowflake-task"
+  source = "../.."
 
   task_configs = {
     "my_task" = {
@@ -14,10 +14,16 @@ module "task" {
       schema           = "MY_SCHEMA"
       name             = "MY_TASK"
       warehouse        = "MY_WAREHOUSE"
-      sql_statement    = "SELECT 1"
+      sql_statement    = "CALL my_procedure()"
       schedule_minutes = 60
-      enabled          = false
-      comment          = "My test task"
+      started          = false
+      comment          = "My scheduled task"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
     }
   }
 }

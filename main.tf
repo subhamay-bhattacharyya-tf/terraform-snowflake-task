@@ -34,3 +34,31 @@ resource "snowflake_task" "this" {
   # Conditional execution
   when = each.value.when
 }
+
+# Grant privileges on tasks to roles
+resource "snowflake_grant_privileges_to_account_role" "task_grants" {
+  for_each = {
+    for grant in flatten([
+      for task_key, task in var.task_configs : [
+        for grant in task.grants : {
+          key        = "${task_key}_${grant.role_name}"
+          task_key   = task_key
+          database   = task.database
+          schema     = task.schema
+          task_name  = task.name
+          role_name  = grant.role_name
+          privileges = grant.privileges
+        }
+      ]
+    ]) : grant.key => grant
+  }
+
+  privileges        = each.value.privileges
+  account_role_name = each.value.role_name
+  on_schema_object {
+    object_type = "TASK"
+    object_name = "\"${each.value.database}\".\"${each.value.schema}\".\"${each.value.task_name}\""
+  }
+
+  depends_on = [snowflake_task.this]
+}

@@ -4,7 +4,7 @@
 # to create a single Snowflake task.
 
 module "task" {
-  source = "../../modules/snowflake-task"
+  source = "../.."
 
   task_configs = var.task_configs
 }

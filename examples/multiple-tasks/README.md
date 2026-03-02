@@ -6,7 +6,7 @@ This example demonstrates how to create multiple Snowflake tasks forming a DAG (
 
 ```hcl
 module "tasks" {
-  source = "../../modules/snowflake-task"
+  source = "../.."
 
   task_configs = {
     "root_task" = {
@@ -16,8 +16,14 @@ module "tasks" {
       warehouse        = "MY_WAREHOUSE"
       sql_statement    = "CALL stage_data()"
       schedule_minutes = 60
-      enabled          = false
+      started          = false
       comment          = "Root task - runs every hour"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR", "OPERATE"]
+        }
+      ]
     }
     "transform_task" = {
       database      = "MY_DATABASE"
@@ -25,9 +31,15 @@ module "tasks" {
       name          = "TRANSFORM_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL transform_data()"
-      after         = ["ROOT_TASK"]
-      enabled       = false
+      afters        = ["ROOT_TASK"]
+      started       = false
       comment       = "Transform task - runs after root task"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR"]
+        }
+      ]
     }
     "load_task" = {
       database      = "MY_DATABASE"
@@ -35,9 +47,15 @@ module "tasks" {
       name          = "LOAD_TASK"
       warehouse     = "MY_WAREHOUSE"
       sql_statement = "CALL load_to_final()"
-      after         = ["TRANSFORM_TASK"]
-      enabled       = false
+      afters        = ["TRANSFORM_TASK"]
+      started       = false
       comment       = "Load task - runs after transform task"
+      grants = [
+        {
+          role_name  = "DATA_ENGINEER"
+          privileges = ["MONITOR"]
+        }
+      ]
     }
   }
 }

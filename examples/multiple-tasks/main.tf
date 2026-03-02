@@ -4,7 +4,7 @@
 # to create multiple Snowflake tasks forming a DAG (Directed Acyclic Graph).
 
 module "tasks" {
-  source = "../../modules/snowflake-task"
+  source = "../.."
 
   task_configs = var.task_configs
 }
