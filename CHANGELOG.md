@@ -27,9 +27,14 @@
 - *(examples)* Remove quoted identifiers from task dependency references
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
+- Update CHANGELOG.md [skip ci]
 
 ### 🧪 Testing
 
 - *(snowflake-task)* Update test assertions for type consistency
 - *(multiple_tasks)* Remove transform and load task test cases
 - *(multiple_tasks)* Remove unused task name variables
+
+### ⚙️ Miscellaneous Tasks
+
+- Upgrade Snowflake provider to 1.0.0 and improve documentation
