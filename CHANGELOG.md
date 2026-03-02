@@ -3,6 +3,7 @@
 ### 🚀 Features
 
 - Implement Snowflake task module
+- [**breaking**] Convert to single-module repository layout
 
 ### 🐛 Bug Fixes
 
@@ -11,6 +12,7 @@
 
 ### 📚 Documentation
 
+- Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
 - Update CHANGELOG.md [skip ci]
