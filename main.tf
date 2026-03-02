@@ -11,9 +11,9 @@ resource "snowflake_task" "this" {
   sql_statement = each.value.sql_statement
   started       = each.value.started
 
-  # Schedule configuration (standalone tasks only)
+  # Schedule configuration (standalone tasks only - conflicts with after)
   dynamic "schedule" {
-    for_each = each.value.schedule_minutes != null || each.value.schedule_cron != null ? [1] : []
+    for_each = length(each.value.afters) == 0 && (each.value.schedule_minutes != null || each.value.schedule_cron != null) ? [1] : []
     content {
       minutes    = each.value.schedule_minutes
       using_cron = each.value.schedule_cron
