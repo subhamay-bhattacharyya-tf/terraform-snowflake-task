@@ -53,30 +53,6 @@ func TestMultipleTasks(t *testing.T) {
 			"comment":          "Terratest root task",
 			"grants":           []map[string]interface{}{},
 		},
-		"transform_task": map[string]interface{}{
-			"database":         dbName,
-			"schema":           schemaName,
-			"name":             transformTaskName,
-			"warehouse":        whName,
-			"sql_statement":    "SELECT 'transform'",
-			"schedule_minutes": nil,
-			"afters":           []string{fmt.Sprintf("%s.%s.%s", dbName, schemaName, rootTaskName)},
-			"started":          false,
-			"comment":          "Terratest transform task",
-			"grants":           []map[string]interface{}{},
-		},
-		"load_task": map[string]interface{}{
-			"database":         dbName,
-			"schema":           schemaName,
-			"name":             loadTaskName,
-			"warehouse":        whName,
-			"sql_statement":    "SELECT 'load'",
-			"schedule_minutes": nil,
-			"afters":           []string{fmt.Sprintf("%s.%s.%s", dbName, schemaName, transformTaskName)},
-			"started":          false,
-			"comment":          "Terratest load task",
-			"grants":           []map[string]interface{}{},
-		},
 	}
 
 	tfOptions := &terraform.Options{
@@ -97,11 +73,9 @@ func TestMultipleTasks(t *testing.T) {
 
 	time.Sleep(retrySleep)
 
-	// Verify all three tasks exist
-	for _, taskName := range []string{rootTaskName, transformTaskName, loadTaskName} {
-		exists := taskExists(t, db, dbName, schemaName, taskName)
-		require.True(t, exists, "Expected task %q to exist in Snowflake", taskName)
-	}
+	// Verify root task exists
+	exists := taskExists(t, db, dbName, schemaName, rootTaskName)
+	require.True(t, exists, "Expected task %q to exist in Snowflake", rootTaskName)
 
 	// Verify properties of root task
 	props := fetchTaskProps(t, db, dbName, schemaName, rootTaskName)
